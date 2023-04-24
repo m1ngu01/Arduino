@@ -48,11 +48,7 @@ void loop() {
   currTime = millis();
   if(currTime - prevTime >= 1000){
     prevTime = currTime;
-    if ( gameTime > 0 )
-    {
-      gameTime--;
-    }
-    Serial.println(gameTime);
+    if ( gameTime > 0 ) gameTime--;
     lcd.clear();
     lcd.setCursor(3,0);
     lcd.print("TIME : ");
@@ -61,7 +57,7 @@ void loop() {
     lcd.print(" 1P:");
     lcd.print(buttonCnt1);
     lcd.setCursor(8,1);
-    lcd.print(" 2p:");
+    lcd.print(" 2P:");
     lcd.print(buttonCnt2);
   }
   
@@ -88,11 +84,13 @@ int button2P()
 {
   static int oldSw =1;
   static int newSw =1;
+
   newSw =digitalRead(BUTTON_2P);
+
   if (newSw != oldSw)
   {
     oldSw = newSw;
-    if (newSw = 0) {
+    if (newSw == 0) {
     return 1;
     }
   }
