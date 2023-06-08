@@ -1,0 +1,97 @@
+#include <Stepper.h>
+#include <Servo.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 20, 4); // I2C LCD 모듈의 주소와 크기를 입력합니다.
+
+
+#define SERVO 12
+#define RELOAD_BUTTON 7
+#define FIRE_BUTTON 6
+
+#define SHOTON 0
+#define SHOTOFF 90
+
+int reload=0;
+int fire=0;
+
+int test = 0;
+
+
+Servo servo;
+
+// 2048:한바퀴(360도), 1024:반바퀴(180도)...
+const int stepsPerRevolution = 2048; 
+// 모터 드라이브에 연결된 핀 IN4, IN2, IN3, IN1
+Stepper myStepper(stepsPerRevolution,11,9,10,8); 
+
+void setup() 
+{
+
+  Serial.begin(9600);
+  myStepper.setSpeed(15); 
+  servo.attach(SERVO);
+
+  pinMode(RELOAD_BUTTON, INPUT_PULLUP);
+  pinMode(FIRE_BUTTON, INPUT_PULLUP);
+
+  lcd.init(); // LCD 초기화
+  lcd.backlight(); // LCD 백라이트 활성화
+
+}
+void loop() 
+{
+
+/*
+  //열고 안당기고
+  servo.write(SHOTOFF);
+
+  //열고 당기고
+  myStepper.step(stepsPerRevolution);
+
+  //닫고 당긴거 유지
+  servo.write(SHOTON);
+
+  //닫고 풀고 (발사)
+  myStepper.step(-stepsPerRevolution);
+*/
+  lcd.clear();
+  lcd.cursor(1,0);
+  lcd.print("Tank System");
+
+
+
+  if(digitalRead(RELOAD_BUTTON) == 0)
+  {
+    Serial.print("reload part");
+    lcd.setCursor(1,0);
+    lcd.print("RELOADing");
+    //열고 당기고
+    myStepper.step(stepsPerRevolution);
+
+    //닫고 당긴거 유지
+    servo.write(SHOTON);
+    lcd.setCursor(1,0);
+    lcd.print("RELOAD GOOD");
+    //장전이 되면 활성화
+    reload = 1;
+    fire = 0;
+  }
+  else if(digitalRead(FIRE_BUTTON) == 0 && reload == 1)
+  {
+    Serial.print("fire part");
+    //닫고 풀고 (발사)
+    myStepper.step(-stepsPerRevolution);
+
+    //열고 안당기고
+    servo.write(SHOTOFF);
+    lcd.clear();
+    lcd.setCursor(1,0);
+    lcd.print("FIRE");
+    
+    //장전 상태 해제
+    reload = 0 ;
+    fire = 1;
+  }
+
+}
